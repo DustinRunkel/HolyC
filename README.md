@@ -61,3 +61,14 @@ switch (num)
 }
 ```
 Any additional quirks should be enumerated in this section.
+
+# Resources
+
+Flex and Bison:
+https://www.oreilly.com/library/view/flex-bison/9780596805418/ch01.html
+https://www.cse.scu.edu/~m1wang/compiler/TutorialFlexBison.pdf
+https://www.gnu.org/software/bison/manual/
+
+LLVM:
+https://llvm.org/docs/GettingStartedTutorials.html
+
