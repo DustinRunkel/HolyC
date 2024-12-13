@@ -69,31 +69,29 @@ static int check_type(void);
 "goto"					{ return(GOTO);     }
 "if"					{ return(IF);       }
 "inline"				{ return(INLINE);   }
-"register"				{ return(REGISTER); }
-"restrict"				{ return(RESTRICT); }
 "return"				{ return(RETURN);   }
 "sizeof"				{ return(SIZEOF);   }
 "static"				{ return(STATIC);   }
 "struct"				{ return(STRUCT);   }
 "switch"				{ return(SWITCH);   }
 "typedef"				{ return(TYPEDEF);  }
-"union"					{ return(UNION);    }
 "volatile"				{ return(VOLATILE); }
 "while"					{ return(WHILE);    }
 
 {L}{A}*					{ return check_type(); }
 
-{HP}{H}+{IS}?				{ return I_CONSTANT; /*TODO: return a value for these constants*/ }
-{NZ}{D}*{IS}?				{ return I_CONSTANT; }
-"0"{O}*{IS}?				{ return I_CONSTANT; }
-{CP}?"'"([^'\\\n]|{ES})+"'"	{ return I_CONSTANT; }
+{HP}{H}+{IS}?				{ //TODO: Handle uints
+                              sscanf(yytext, "%d", &yylval.ival); return I_CONSTANT; }
+{NZ}{D}*{IS}?				{ sscanf(yytext, "%d", &yylval.ival); return I_CONSTANT; }
+"0"{O}*{IS}?				{ sscanf(yytext, "%d", &yylval.ival); return I_CONSTANT; }
+{CP}?"'"([^'\\\n]|{ES})+"'"	{ sscanf(yytext, "%d", &yylval.ival); return I_CONSTANT; }
 
-{D}+{E}{FS}?				{ return F_CONSTANT; }
-{D}*"."{D}+{E}?{FS}?		{ return F_CONSTANT; }
-{D}+"."{E}?{FS}?			{ return F_CONSTANT; }
-{HP}{H}+{P}{FS}?			{ return F_CONSTANT; }
-{HP}{H}*"."{H}+{P}{FS}?		{ return F_CONSTANT; }
-{HP}{H}+"."{P}{FS}?			{ return F_CONSTANT; }
+{D}+{E}{FS}?				{ sscanf(yytext, "%lf", &yylval.dval);return F_CONSTANT;  }
+{D}*"."{D}+{E}?{FS}?		{ sscanf(yytext, "%lf", &yylval.dval);return F_CONSTANT;  }
+{D}+"."{E}?{FS}?			{ sscanf(yytext, "%lf", &yylval.dval);return F_CONSTANT;  }
+{HP}{H}+{P}{FS}?			{ sscanf(yytext, "%lf", &yylval.dval);return F_CONSTANT;  }
+{HP}{H}*"."{H}+{P}{FS}?		{ sscanf(yytext, "%lf", &yylval.dval);return F_CONSTANT;  }
+{HP}{H}+"."{P}{FS}?			{ sscanf(yytext, "%lf", &yylval.dval);return F_CONSTANT;  }
 
 ({SP}?\"([^"\\\n]|{ES})*\"{WS}*)+	{ return STRING_LITERAL; }
 
