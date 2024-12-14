@@ -39,10 +39,14 @@
 %%
 
 translation_unit : pre_processor
-				 | statement
+				 | statements
 				 ;
 
 pre_processor : /*In progresss*/;
+
+statements : statement
+		   | statement statement
+		   ;
 
 statement : expression ';'
 		  | declaration ';'
@@ -61,16 +65,39 @@ type : BOOL
 	 | F64
 	 ;
 
-declaration : type IDENTIFIER 
+
+
+declaration : type IDENTIFIER
+			| function_declaration
+			| function
+			| inline_function_declaration
 			;
 
+function_declaration :  type FUNC_NAME '(' args ')'
+                     |  type FUNC_NAME '(' ')'
+					 ;
+
+inline_function_declaration : INLINE function_declaration '{' statements '}';
+
+function : function_declaration '{' statements '}'
+		 | function_declaration '{' '}'
+		 ;
+
+args : args ',' arg;
+
+arg : IDENTIFIER
+	| constant
+	;
+
+constant : I_CONSTANT
+		 | F_CONSTANT
+		 ;
+
 expression : assignment_expression
-		   | IDENTIFIER 
-		   | 
 		   ;
  
-assignment_expression : type IDENTIFIER '=' expression
-                      | IDENTIFIER '=' expression
+assignment_expression : type IDENTIFIER '=' constant
+                      | IDENTIFIER '=' constant
 					  ;
 
 %%

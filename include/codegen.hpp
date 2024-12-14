@@ -26,18 +26,20 @@ static void InitModule()
     tu_module = std::make_unique<llvm::Module>("translation_unit", *tu_context);
 }
 
-class ast
+class node
 {
     public:
-        virtual ~ast() = default;
+        virtual ~node() = default;
         virtual llvm::Value* codegen() = 0;
 };
 
-class dclAst : ast
+class function_prototype
 {
-    public:
-        llvm::Value* codegen() override 
-        {
-            
-        }
+    llvm::Function codegen() 
+    {
+        //std::vector<Type*> doubles(Args.size(), Type::getDoubleTy(*TheContext));
+        //llvm::FunctionType *FT  = llvm::FunctionType::get(llvm::Type::getDoubleTy(*TheContext), Doubles, false);
+
+        //llvm::Function *F = llvm::Function::Create(FT, llvm::Function::ExternalLinkage, Name, tu_module.get());
+    }
 };
