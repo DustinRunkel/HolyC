@@ -1,0 +1,213 @@
+%{
+	#include <stdio.h>
+	#include <stdlib.h>
+	#include "codegen.hpp"
+
+	int yylex();
+	extern int lineno;
+	void yyerror (const char *);
+%}
+
+//TODO add more sizing types
+//allocate one buffer to 
+%union 
+{
+	int ival;
+	unsigned int uival;
+	double dval;
+	char *str;
+}
+
+%token<str>	IDENTIFIER STRING_LITERAL FUNC_NAME TYPEDEF_NAME
+%token<ival> I_CONSTANT
+%token<dval> F_CONSTANT
+%token  SIZEOF
+%token	PTR_OP INC_OP DEC_OP LEFT_OP RIGHT_OP LE_OP GE_OP EQ_OP NE_OP
+%token	AND_OP OR_OP MUL_ASSIGN DIV_ASSIGN MOD_ASSIGN ADD_ASSIGN
+%token	SUB_ASSIGN LEFT_ASSIGN RIGHT_ASSIGN AND_ASSIGN
+%token	XOR_ASSIGN OR_ASSIGN
+%token	ENUMERATION_CONSTANT
+
+%token	TYPEDEF EXTERN STATIC INLINE
+%token	CONST VOLATILE
+%token	BOOL U0 U8 U16 U32 U64 I8 I16 I32 I64 F64
+%token	STRUCT ENUM ELLIPSIS
+
+%token	CASE DEFAULT IF ELSE SWITCH WHILE DO FOR GOTO BREAK RETURN
+%%
+
+prog    : externs		    {}
+        ;
+
+externs :			        {}
+        | externs extern	{}
+        ;
+
+extern  : dcl ';'		    {}				
+        | func			    {}
+        ;
+
+dcls    :			        {}
+        | dcls dcl ';'		{}
+        ;
+
+dcl     : type dclr         {}
+        | dcl ',' dclr      {}
+        ;
+
+dclr    : IDENTIFIER                    { }
+        | IDENTIFIER '[' ']'            { }
+        | IDENTIFIER '[' I_CONSTANT ']' { }
+        ;
+
+
+type : BOOL
+     | U0
+	 | U8
+	 | U16
+	 | U32
+	 | U64
+	 | I8
+	 | I16
+	 | I32
+	 | I64
+	 | F64
+	 ;
+
+func    : fhead stmts '}'	             {}
+        ;
+
+fhead   : fname fargs '{' dcls           {}
+        ;
+
+fname   : type IDENTIFIER                {}
+        | IDENTIFIER                     {}
+        ;
+
+fargs   : '(' ')' 		                 {}
+        | '(' args ')' 		             {}
+        ;
+
+args    : type dclr		                 {}
+        | args ',' type dclr	         {}
+        ;
+
+s	    :			                	 {}
+	    ;
+
+m       :                        		 {}
+        ;
+
+n       :                       		 {}
+        ;
+
+block   : '{' stmts '}'                  {}
+        ;
+
+stmts   :			                     {}
+		| stmts lblstmt		             {}
+        ;
+
+lblstmt	: b stmt		                 {}
+	| b labels stmt		                 {}
+	;
+
+labels	: IDENTIFIER    ':'		         {}
+	| labels IDENTIFIER ':'		         {}
+	;
+
+
+b	: 									 {}
+	;
+
+stmt    : expr ';'                                                     {}
+        | IF '(' cexpr ')' m lblstmt m                                 {}
+        | IF '(' cexpr ')' m lblstmt ELSE n m lblstmt m                {}
+        | WHILE '(' m cexpr ')' m s lblstmt n m                        {}
+        | DO m s lblstmt WHILE '(' m cexpr ')' ';' m                   {}
+        | FOR '(' expro ';' m cexpro ';' m expro n ')' m s lblstmt n m {}
+		| BREAK ';'                                                    {}
+		| GOTO IDENTIFIER ';'                                          {}
+        | RETURN ';'                                                   {}
+        | RETURN expr ';'                                              {}
+		| block                                                        {}
+        | ';'                                                          {}
+        ;
+
+cexpro  :			{}
+        | cexpr			{}
+        ;
+
+cexpr   : expr EQ_OP expr          {}
+        | expr NE_OP expr          {}
+        | expr LE_OP expr          {}
+        | expr GE_OP expr          {}
+        | expr '<' expr            {}
+        | expr '>' expr            {}
+        | cexpr AND_OP m cexpr     {}
+        | cexpr OR_OP m cexpr      {}
+        | '!' cexpr                {}
+        | expr                     {}
+        | '(' cexpr ')'            {}
+        ;
+
+exprs   : expr                  {}
+        | exprs ',' expr        {}
+        ;
+
+expro   :			{ }
+        | expr			{ }
+        ;
+
+expr    : lval '=' expr		        {}
+        | lval OR_ASSIGN expr	    {}
+        | lval XOR_ASSIGN expr	    {}
+        | lval AND_ASSIGN expr	    {}
+        | lval LEFT_ASSIGN expr	    {}
+        | lval RIGHT_ASSIGN expr	{}
+        | lval ADD_ASSIGN expr	    {}
+        | lval SUB_ASSIGN expr	    {}
+        | lval MUL_ASSIGN expr	    {}
+        | lval DIV_ASSIGN expr	    {}
+        | lval MOD_ASSIGN expr	    {}
+        | expr OR_ASSIGN expr	    {}
+        | expr XOR_ASSIGN expr	    {}
+        | expr AND_ASSIGN expr	    {}
+        | expr LEFT_OP expr		    {}
+        | expr RIGHT_OP expr		{}
+        | expr '+' expr		        {}
+        | expr '-' expr		        {}
+        | expr '*' expr		        {}
+        | expr '/' expr		        {}
+        | expr '%' expr		        {}
+        | '&' lval                  {}
+        | '-' expr                  {}
+        | '~' expr		            {}
+        | IDENTIFIER '(' ')'		{}
+        | IDENTIFIER '(' exprs ')'	{}
+        | '(' expr ')'		        {}
+        | I_CONSTANT			    {}
+		| F_CONSTANT                {}
+        | STRING_LITERAL			{}
+		;
+
+lval	: IDENTIFIER			    {}
+		| IDENTIFIER '[' expr ']'	{}
+        ;
+
+%%
+#include <stdio.h>
+
+void yyerror(const char *s)
+{
+	fflush(stdout);
+	fprintf(stderr, "*** %s\n", s);
+}
+
+int main ()
+{
+	if(yyparse())
+	{
+		yyerror("Some error");
+	}
+}
