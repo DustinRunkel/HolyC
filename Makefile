@@ -1,5 +1,5 @@
 CXX=gcc
-CC=clang
+CC=gcc
 SRC=src 
 EXE=build
 
@@ -7,8 +7,8 @@ HEADERS = $(wildcard include/*.h) $(wildcard include/*.hpp)
 SOURCES = src/HolyC.tab.cpp src/HolyC.yy.cpp
 GRAMMAR = src/HolyC.l src/HolyC.ypp
 
-LIBS=`llvm-config --libs core native  --ldflags ` -lpthread -ldl -lz -ltinfo
-CFLAGS=-Wall -g  -DLEFTTORIGHT  `llvm-config --cxxflags` -std=c++20 
+LIBS=`llvm-config --libs core native  --ldflags  ` -lpthread -ldl -lz -ltinfo -lstdc++
+CFLAGS=-Wall -g  -DLEFTTORIGHT  `llvm-config --cxxflags` -std=c++23 
 
 .PRECIOUS: $(SRC) $(INCLUDE) $(GRAMMAR)
 

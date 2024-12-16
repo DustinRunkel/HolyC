@@ -34,23 +34,32 @@
 %token	STRUCT ENUM ELLIPSIS
 
 %token	CASE DEFAULT IF ELSE SWITCH WHILE DO FOR GOTO BREAK RETURN
-
-%start translation_unit
 %%
 
-translation_unit : pre_processor
-				 | statements
-				 ;
+prog    : externs		    {}
+        ;
 
-pre_processor : /*In progresss*/;
+externs :			        {}
+        | externs extern	{}
+        ;
 
-statements : statement
-		   | statement statement
-		   ;
+extern  : dcl ';'		    {}				
+        | func			    {}
+        ;
 
-statement : expression ';'
-		  | declaration ';'
-		  ;
+dcls    :			        {}
+        | dcls dcl ';'		{}
+        ;
+
+dcl     : type dclr         {}
+        | dcl ',' dclr      {}
+        ;
+
+dclr    : IDENTIFIER                    { }
+        | IDENTIFIER '[' ']'            { }
+        | IDENTIFIER '[' I_CONSTANT ']' { }
+        ;
+
 
 type : BOOL
      | U0
@@ -65,40 +74,126 @@ type : BOOL
 	 | F64
 	 ;
 
+func    : fhead stmts '}'	             {}
+        ;
 
+fhead   : fname fargs '{' dcls           {}
+        ;
 
-declaration : type IDENTIFIER
-			| function_declaration
-			| function
-			| inline_function_declaration
-			;
+fname   : type IDENTIFIER                {}
+        | IDENTIFIER                     {}
+        ;
 
-function_declaration :  type FUNC_NAME '(' args ')'
-                     |  type FUNC_NAME '(' ')'
-					 ;
+fargs   : '(' ')' 		                 {}
+        | '(' args ')' 		             {}
+        ;
 
-inline_function_declaration : INLINE function_declaration '{' statements '}';
+args    : type dclr		                 {}
+        | args ',' type dclr	         {}
+        ;
 
-function : function_declaration '{' statements '}'
-		 | function_declaration '{' '}'
-		 ;
+s	    :			                	 {}
+	    ;
 
-args : args ',' arg;
+m       :                        		 {}
+        ;
 
-arg : IDENTIFIER
-	| constant
+n       :                       		 {}
+        ;
+
+block   : '{' stmts '}'                  {}
+        ;
+
+stmts   :			                     {}
+		| stmts lblstmt		             {}
+        ;
+
+lblstmt	: b stmt		                 {}
+	| b labels stmt		                 {}
 	;
 
-constant : I_CONSTANT
-		 | F_CONSTANT
-		 ;
+labels	: IDENTIFIER    ':'		         {}
+	| labels IDENTIFIER ':'		         {}
+	;
 
-expression : assignment_expression
-		   ;
- 
-assignment_expression : type IDENTIFIER '=' constant
-                      | IDENTIFIER '=' constant
-					  ;
+
+b	: 									 {}
+	;
+
+stmt    : expr ';'                                                     {}
+        | IF '(' cexpr ')' m lblstmt m                                 {}
+        | IF '(' cexpr ')' m lblstmt ELSE n m lblstmt m                {}
+        | WHILE '(' m cexpr ')' m s lblstmt n m                        {}
+        | DO m s lblstmt WHILE '(' m cexpr ')' ';' m                   {}
+        | FOR '(' expro ';' m cexpro ';' m expro n ')' m s lblstmt n m {}
+		| BREAK ';'                                                    {}
+		| GOTO IDENTIFIER ';'                                          {}
+        | RETURN ';'                                                   {}
+        | RETURN expr ';'                                              {}
+		| block                                                        {}
+        | ';'                                                          {}
+        ;
+
+cexpro  :			{}
+        | cexpr			{}
+        ;
+
+cexpr   : expr EQ_OP expr          {}
+        | expr NE_OP expr          {}
+        | expr LE_OP expr          {}
+        | expr GE_OP expr          {}
+        | expr '<' expr            {}
+        | expr '>' expr            {}
+        | cexpr AND_OP m cexpr     {}
+        | cexpr OR_OP m cexpr      {}
+        | '!' cexpr                {}
+        | expr                     {}
+        | '(' cexpr ')'            {}
+        ;
+
+exprs   : expr                  {}
+        | exprs ',' expr        {}
+        ;
+
+expro   :			{ }
+        | expr			{ }
+        ;
+
+expr    : lval '=' expr		        {}
+        | lval OR_ASSIGN expr	    {}
+        | lval XOR_ASSIGN expr	    {}
+        | lval AND_ASSIGN expr	    {}
+        | lval LEFT_ASSIGN expr	    {}
+        | lval RIGHT_ASSIGN expr	{}
+        | lval ADD_ASSIGN expr	    {}
+        | lval SUB_ASSIGN expr	    {}
+        | lval MUL_ASSIGN expr	    {}
+        | lval DIV_ASSIGN expr	    {}
+        | lval MOD_ASSIGN expr	    {}
+        | expr OR_ASSIGN expr	    {}
+        | expr XOR_ASSIGN expr	    {}
+        | expr AND_ASSIGN expr	    {}
+        | expr LEFT_OP expr		    {}
+        | expr RIGHT_OP expr		{}
+        | expr '+' expr		        {}
+        | expr '-' expr		        {}
+        | expr '*' expr		        {}
+        | expr '/' expr		        {}
+        | expr '%' expr		        {}
+        | '&' lval                  {}
+        | '-' expr                  {}
+        | '~' expr		            {}
+        | IDENTIFIER '(' ')'		{}
+        | IDENTIFIER '(' exprs ')'	{}
+        | '(' expr ')'		        {}
+        | I_CONSTANT			    {}
+		| F_CONSTANT                {}
+        | STRING_LITERAL			{}
+		;
+
+lval	: IDENTIFIER			    {}
+		| IDENTIFIER '[' expr ']'	{}
+        ;
 
 %%
 #include <stdio.h>

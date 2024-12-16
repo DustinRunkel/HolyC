@@ -4,13 +4,20 @@
             "name": "Linux",
             "includePath": [
                 "${workspaceFolder}/**",
-                "/usr/include/llvm-17"
+                "/usr/include/llvm-18"
             ],
             "defines": [],
-            "compilerPath": "/usr/bin/clang",
+            "compilerPath": "/usr/bin/gcc",
             "cStandard": "c17",
-            "cppStandard": "c++14",
-            "intelliSenseMode": "linux-clang-x64"
+            "cppStandard": "c++23",
+            "intelliSenseMode": "linux-gcc-x64",
+            "compilerArgs": [
+                "-lpthread ",
+                "-ldl ",
+                "-lz ",
+                "-ltinfo ",
+                "-lstdc++"
+            ]
         }
     ],
     "version": 4
