@@ -26,4 +26,4 @@ objects: $(HEADERS) $(SOURCES)
 	$(CXX) -I./include/ $(SOURCES) $(CFLAGS) $(LIBS) -o HolyC
 	mv HolyC build/
 clean:
-	rm -f src/HolyC.yy.cpp src/HolyC.tab.cpp include/HolyC.tab.h build/HolyC
+	rm -f src/HolyC.yy.cpp src/HolyC.tab.cpp include/HolyC.tab.hpp build/HolyC
