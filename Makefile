@@ -5,7 +5,7 @@ EXE=build
 
 HEADERS = $(wildcard include/*.h) $(wildcard include/*.hpp)
 SOURCES = src/HolyC.tab.cpp src/HolyC.yy.cpp
-GRAMMAR = src/HolyC.l src/HolyC.y
+GRAMMAR = src/HolyC.l src/HolyC.ypp
 
 LIBS=`llvm-config --libs core native  --ldflags ` -lpthread -ldl -lz -ltinfo
 CFLAGS=-Wall -g  -DLEFTTORIGHT  `llvm-config --cxxflags` -std=c++20 
@@ -15,9 +15,9 @@ CFLAGS=-Wall -g  -DLEFTTORIGHT  `llvm-config --cxxflags` -std=c++20
 all: yacc objects
 
 yacc:
-	bison -d src/HolyC.y
-	mv HolyC.tab.c src/HolyC.tab.cpp
-	mv HolyC.tab.h include/HolyC.tab.h
+	bison -d src/HolyC.ypp
+	mv HolyC.tab.cpp src/HolyC.tab.cpp
+	mv HolyC.tab.hpp include/HolyC.tab.hpp
 
 	flex src/HolyC.l
 	mv lex.yy.c src/HolyC.yy.cpp
