@@ -35,11 +35,20 @@ class node
 
 class function_prototype
 {
-    llvm::Function codegen() 
-    {
-        //std::vector<Type*> doubles(Args.size(), Type::getDoubleTy(*TheContext));
-        //llvm::FunctionType *FT  = llvm::FunctionType::get(llvm::Type::getDoubleTy(*TheContext), Doubles, false);
+    public: 
+        llvm::Type* return_type = llvm::Type::getVoidTy(*tu_context);
+        std::string* name;
 
-        //llvm::Function *F = llvm::Function::Create(FT, llvm::Function::ExternalLinkage, Name, tu_module.get());
+    function_prototype(const char* name, llvm::Type return_type )
+    {
+        this->return_type = &return_type;
+        this->name = new std::string(name);
+    }
+
+    llvm::Function * codegen(std::vector<llvm::Type*>* args)
+    {
+        llvm::FunctionType *FT  = llvm::FunctionType::get(return_type, *args, false);
+        
+        return llvm::Function::Create( FT, llvm::Function::ExternalLinkage, *name, tu_module.get());
     }
 };

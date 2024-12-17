@@ -18,7 +18,7 @@
 	char *str;
 }
 
-%token<str>	IDENTIFIER STRING_LITERAL FUNC_NAME TYPEDEF_NAME
+%token<str>  IDENTIFIER STRING_LITERAL FUNC_NAME TYPEDEF_NAME
 %token<ival> I_CONSTANT
 %token<dval> F_CONSTANT
 %token  SIZEOF
@@ -36,88 +36,85 @@
 %token	CASE DEFAULT IF ELSE SWITCH WHILE DO FOR GOTO BREAK RETURN
 %%
 
-prog    : externs		    {}
+prog    : externs		        {}
         ;
 
 externs :			        {}
-        | externs extern	{}
+        | externs extern	        {}
         ;
 
-extern  : dcl ';'		    {}				
-        | func			    {}
+extern  : dcl ';'		        {}				
+        | func			        {}
         ;
 
 dcls    :			        {}
-        | dcls dcl ';'		{}
+        | dcls dcl ';'		        {}
         ;
 
-dcl     : type dclr         {}
-        | dcl ',' dclr      {}
+dcl     : type dclr                     {}
+        | dcl ',' dclr                  {}
         ;
 
-dclr    : IDENTIFIER                    { }
-        | IDENTIFIER '[' ']'            { }
-        | IDENTIFIER '[' I_CONSTANT ']' { }
+dclr    : IDENTIFIER                    {}
+        | IDENTIFIER '[' ']'            {}
+        | IDENTIFIER '[' I_CONSTANT ']' {}
         ;
 
 
 type : BOOL
      | U0
-	 | U8
-	 | U16
-	 | U32
-	 | U64
-	 | I8
-	 | I16
-	 | I32
-	 | I64
-	 | F64
-	 ;
+     | U8
+     | U16
+     | U32
+     | U64
+     | I8
+     | I16
+     | I32
+     | I64
+     | F64
+     ;
 
-func    : fhead stmts '}'	             {}
+func    : fhead stmts '}'	         {}
         ;
 
-fhead   : fname fargs '{' dcls           {}
+fhead   : type IDENTIFIER fargs '{' dcls           {}
+        | IDENTIFIER fargs '{' dcls
         ;
 
-fname   : type IDENTIFIER                {}
-        | IDENTIFIER                     {}
+fargs   : '(' ')' 		         {}
+        | '(' args ')' 		         {}
         ;
 
-fargs   : '(' ')' 		                 {}
-        | '(' args ')' 		             {}
-        ;
-
-args    : type dclr		                 {}
+args    : type dclr		         {}
         | args ',' type dclr	         {}
         ;
 
-s	    :			                	 {}
-	    ;
-
-m       :                        		 {}
+s	:			         {}
         ;
 
-n       :                       		 {}
+m       :                                {}
+        ;
+
+n       :                                {}
         ;
 
 block   : '{' stmts '}'                  {}
         ;
 
-stmts   :			                     {}
-		| stmts lblstmt		             {}
+stmts   :			         {}
+	| stmts lblstmt		         {}
         ;
 
-lblstmt	: b stmt		                 {}
-	| b labels stmt		                 {}
+lblstmt	: b stmt		         {}
+	| b labels stmt		         {}
 	;
 
-labels	: IDENTIFIER    ':'		         {}
-	| labels IDENTIFIER ':'		         {}
+labels	: IDENTIFIER    ':'		 {}
+	| labels IDENTIFIER ':'		 {}
 	;
 
 
-b	: 									 {}
+b	: 							       {}
 	;
 
 stmt    : expr ';'                                                     {}
@@ -126,11 +123,11 @@ stmt    : expr ';'                                                     {}
         | WHILE '(' m cexpr ')' m s lblstmt n m                        {}
         | DO m s lblstmt WHILE '(' m cexpr ')' ';' m                   {}
         | FOR '(' expro ';' m cexpro ';' m expro n ')' m s lblstmt n m {}
-		| BREAK ';'                                                    {}
-		| GOTO IDENTIFIER ';'                                          {}
+	| BREAK ';'                                                    {}
+	| GOTO IDENTIFIER ';'                                          {}
         | RETURN ';'                                                   {}
         | RETURN expr ';'                                              {}
-		| block                                                        {}
+	| block                                                        {}
         | ';'                                                          {}
         ;
 
@@ -155,8 +152,8 @@ exprs   : expr                  {}
         | exprs ',' expr        {}
         ;
 
-expro   :			{ }
-        | expr			{ }
+expro   :			{}
+        | expr			{}
         ;
 
 expr    : lval '=' expr		        {}
