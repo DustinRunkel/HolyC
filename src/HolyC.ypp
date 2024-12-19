@@ -1,7 +1,9 @@
 %{
 	#include <stdio.h>
 	#include <stdlib.h>
+        #include <vector>
 	#include "codegen.hpp"
+        #include "llvm/IR/Type.h"
 
 	int yylex();
 	extern int lineno;
@@ -16,6 +18,9 @@
 	unsigned int uival;
 	double dval;
 	char *str;
+        llvm::Type l_type;
+        std::vector<llvm::Type*> *l_args;
+        function_prototype * f_head;
 }
 
 %token<str>  IDENTIFIER STRING_LITERAL FUNC_NAME TYPEDEF_NAME
@@ -30,7 +35,7 @@
 
 %token	TYPEDEF EXTERN STATIC INLINE
 %token	CONST VOLATILE
-%token	BOOL U0 U8 U16 U32 U64 I8 I16 I32 I64 F64
+%token<uival> BOOL U0 U8 U16 U32 U64 I8 I16 I32 I64 F64
 %token	STRUCT ENUM ELLIPSIS
 
 %token	CASE DEFAULT IF ELSE SWITCH WHILE DO FOR GOTO BREAK RETURN
@@ -61,27 +66,29 @@ dclr    : IDENTIFIER                    {}
         ;
 
 
-type : BOOL
-     | U0
-     | U8
-     | U16
-     | U32
-     | U64
-     | I8
-     | I16
-     | I32
-     | I64
-     | F64
+type : BOOL {return BOOL;}
+     | U0   {return U0;}
+     | U8   {return U8;}
+     | U16  {return U16;}
+     | U32  {return U32;}
+     | U64  {return U64;}
+     | I8   {return I8;}
+     | I16  {return I16;}
+     | I32  {return I32;}
+     | I64  {return I64;}
+     | F64  {return F64;}
      ;
 
 func    : fhead stmts '}'	         {}
         ;
 
-fhead   : type IDENTIFIER fargs '{' dcls           {}
+fhead   : type IDENTIFIER fargs '{' dcls           
+        { $<f_head>$ = new function_prototype($<l_type>1, $<str>2, $<largs>3 );}
+
         | IDENTIFIER fargs '{' dcls
         ;
 
-fargs   : '(' ')' 		         {}
+fargs   : '(' ')' 		         { return nullptr; }
         | '(' args ')' 		         {}
         ;
 
@@ -161,7 +168,7 @@ expr    : lval '=' expr		        {}
         | lval XOR_ASSIGN expr	    {}
         | lval AND_ASSIGN expr	    {}
         | lval LEFT_ASSIGN expr	    {}
-        | lval RIGHT_ASSIGN expr	{}
+        | lval RIGHT_ASSIGN expr    {}
         | lval ADD_ASSIGN expr	    {}
         | lval SUB_ASSIGN expr	    {}
         | lval MUL_ASSIGN expr	    {}
@@ -170,26 +177,26 @@ expr    : lval '=' expr		        {}
         | expr OR_ASSIGN expr	    {}
         | expr XOR_ASSIGN expr	    {}
         | expr AND_ASSIGN expr	    {}
-        | expr LEFT_OP expr		    {}
+        | expr LEFT_OP expr		{}
         | expr RIGHT_OP expr		{}
         | expr '+' expr		        {}
         | expr '-' expr		        {}
         | expr '*' expr		        {}
         | expr '/' expr		        {}
         | expr '%' expr		        {}
-        | '&' lval                  {}
-        | '-' expr                  {}
-        | '~' expr		            {}
+        | '&' lval                      {}
+        | '-' expr                      {}
+        | '~' expr		        {}
         | IDENTIFIER '(' ')'		{}
         | IDENTIFIER '(' exprs ')'	{}
         | '(' expr ')'		        {}
-        | I_CONSTANT			    {}
-		| F_CONSTANT                {}
-        | STRING_LITERAL			{}
-		;
+        | I_CONSTANT			{}
+	| F_CONSTANT                    {}
+        | STRING_LITERAL	        {}
+	;
 
-lval	: IDENTIFIER			    {}
-		| IDENTIFIER '[' expr ']'	{}
+lval	: IDENTIFIER			{}
+	| IDENTIFIER '[' expr ']'	{}
         ;
 
 %%
